@@ -1,0 +1,13 @@
+chromadb
+gradio
+langchain==0.0.223
+tiktoken 
+pypdf 
+faiss-gpu
+transformers 
+InstructorEmbedding 
+sentence_transformers==2.2.2
+accelerate 
+bitsandbytes 
+xformers 
+einops
