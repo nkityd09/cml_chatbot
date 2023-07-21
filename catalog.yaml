@@ -2,7 +2,7 @@ name: Cloudera
 
 entries:
   - title: LLM Document Chatbot
-    label: Document Q&A
+    label: Document_Q&A
     short_description: TBC
     long_description: >-
       TBC
