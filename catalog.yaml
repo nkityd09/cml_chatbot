@@ -1,0 +1,20 @@
+name: Cloudera
+
+entries:
+  - title: LLM Document Chatbot
+    label: Document Q&A
+    short_description: TBC
+    long_description: >-
+      TBC
+    image_path: >-
+      https://raw.githubusercontent.com/cloudera/Applied-ML-Prototypes/master/images/intelligent-writing-assistance.png
+    tags:
+      - NLP
+      - 
+      - HuggingFace
+      - Llama-2
+      - LLM
+      - Gradio
+      - PyTorch
+    git_url: "https://github.com/nkityd09/cml_chatbot.git"
+    is_prototype: true
