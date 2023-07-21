@@ -146,7 +146,7 @@ def embed_documents():
                                                          .replace('    ', ' ')\
                                                          .replace('   ', ' ')\
                                                          .replace('  ', ' ')
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     texts = text_splitter.split_documents(documents)
     len(texts)
 
