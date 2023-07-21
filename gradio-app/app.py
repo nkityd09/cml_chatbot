@@ -26,7 +26,7 @@ from InstructorEmbedding import INSTRUCTOR
 
 
 class CFG:
-    model_name = 'llama-2' # wizardlm, llama-2, bloom, falcon
+    model_name = 'llama-2-7b' # wizardlm, llama-2-13b, falcon
 
 access_token = os.environ["HF_TOKEN"]
     
@@ -34,8 +34,8 @@ def get_model(model = CFG.model_name):
     
     print('\nDownloading model: ', model, '\n\n')
     
-    if CFG.model_name == 'wizardlm':
-        tokenizer = AutoTokenizer.from_pretrained('TheBloke/wizardLM-7B-HF')
+    if CFG.model_name == 'wizardlm': # TODO Change to Vicuna
+        tokenizer = AutoTokenizer.from_pretrained('TheBloke/wizardLM-7B-HF') 
         
         model = AutoModelForCausalLM.from_pretrained('TheBloke/wizardLM-7B-HF',
                                                      load_in_8bit=True,
@@ -47,7 +47,7 @@ def get_model(model = CFG.model_name):
         task = "text-generation"
         T = 0
         
-    elif CFG.model_name == 'llama-2':
+    elif CFG.model_name == 'llama-2-13b':
         tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b-chat-hf") #meta-llama/Llama-2-7b-chat-hf
         
         model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b-chat-hf", #meta-llama/Llama-2-7b-chat-hf
@@ -61,14 +61,15 @@ def get_model(model = CFG.model_name):
         task = "text-generation"
         T = 0.1
 
-    elif CFG.model_name == 'bloom':
-        tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-7b1")
+    elif CFG.model_name == 'llama-2-7b': 
+        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
         
-        model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-7b1",
+        model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf",
                                                      load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True,
+                                                     token=access_token
                                                     )
         max_len = 1024
         task = "text-generation"
@@ -109,11 +110,6 @@ llm = HuggingFacePipeline(pipeline=pipe)
 
 
 
-
-##########################
-#######Working Code#######
-##########################
-
 #Uploading Files to target location
 target = '/home/cdsw/data/'
 def upload_file(files):
@@ -126,7 +122,7 @@ def upload_file(files):
 
 
 ### download embeddings model
-instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"})
+instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"}) #TODO Check Cuda utilization, Specify single GPU if needed
 
 
 
@@ -157,11 +153,11 @@ def embed_documents():
     ### create embeddings and DB
     
     
-    persist_directory = 'volkswagen_data'
+    persist_directory = 'data' 
     vectordb = Chroma.from_documents(documents=texts,
                                  embedding=instructor_embeddings,
                                  persist_directory=persist_directory,
-                                 collection_name='vw_data')
+                                 collection_name='data')
 
     ### persist Chroma database
     vectordb.persist()
@@ -185,6 +181,8 @@ def embed_documents():
 
 ##### Experimentatal Code ##### 
 
+#TODO Write comments for each fucntion below
+#TODO Can these by moved to a separate file ?
 
 def chain(query):
     qa_chain = RetrievalQA.from_chain_type(llm=llm, 
@@ -247,9 +245,6 @@ with gr.Blocks() as demo:
                     submitBtn = gr.Button("Submit", variant="primary")
             with gr.Column(scale=1):
                 emptyBtn = gr.Button("Clear History")
-                max_length = gr.Slider(0, 32768, value=8192, step=1.0, label="Maximum length", interactive=True)
-                top_p = gr.Slider(0, 1, value=0.8, step=0.01, label="Top P", interactive=True)
-                temperature = gr.Slider(0, 1, value=0.95, step=0.01, label="Temperature", interactive=True)
         user_input.submit(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, chatbot, chatbot)
         submitBtn.click(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, chatbot, chatbot)
         history = gr.State([])
@@ -283,4 +278,3 @@ if __name__ == "__main__":
                 server_port=int(os.getenv('CDSW_APP_PORT')))
     print("Gradio app ready")
     
-os.system('python -m jupyterlab_nvdashboard.server 8192')
