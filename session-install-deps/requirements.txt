@@ -1,4 +1,4 @@
-chromadb==3.35.0
+chromadb==0.3.29
 gradio
 langchain==0.0.223
 tiktoken 
