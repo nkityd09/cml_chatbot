@@ -26,7 +26,7 @@ from InstructorEmbedding import INSTRUCTOR
 
 
 class CFG:
-    model_name = 'llama-2-7b' # wizardlm, llama-2-13b, falcon
+    model_name = 'falcon' # wizardlm, llama-2-13b, falcon
 
 access_token = os.environ["HF_TOKEN"]
     
