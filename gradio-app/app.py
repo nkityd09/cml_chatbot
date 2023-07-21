@@ -26,7 +26,7 @@ from InstructorEmbedding import INSTRUCTOR
 
 
 class CFG:
-    model_name = 'falcon' # wizardlm, llama-2-13b, falcon
+    model_name = 'falcon' # vicuna, llama-2-7b, llama-2-13b, falcon
 
 # Uncomment if you want to use Llama-2
 #access_token = os.environ["HF_TOKEN"]
@@ -35,16 +35,16 @@ def get_model(model = CFG.model_name):
     
     print('\nDownloading model: ', model, '\n\n')
     
-    if CFG.model_name == 'wizardlm': # TODO Change to Vicuna
-        tokenizer = AutoTokenizer.from_pretrained('TheBloke/wizardLM-7B-HF') 
+    if CFG.model_name == 'vicuna':
+        tokenizer = AutoTokenizer.from_pretrained('eachadea/vicuna-7b-1.1') 
         
-        model = AutoModelForCausalLM.from_pretrained('TheBloke/wizardLM-7B-HF',
+        model = AutoModelForCausalLM.from_pretrained('eachadea/vicuna-7b-1.1',
                                                      load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True
                                                     )
-        max_len = 1024
+        max_len = 4096
         task = "text-generation"
         T = 0
         
@@ -58,7 +58,7 @@ def get_model(model = CFG.model_name):
                                                      low_cpu_mem_usage=True,
                                                      token=access_token
                                                     )
-        max_len = 2048
+        max_len = 4096
         task = "text-generation"
         T = 0.1
 
@@ -72,7 +72,7 @@ def get_model(model = CFG.model_name):
                                                      low_cpu_mem_usage=True,
                                                      token=access_token
                                                     )
-        max_len = 1024
+        max_len = 4096
         task = "text-generation"
         T = 0
         
@@ -86,7 +86,7 @@ def get_model(model = CFG.model_name):
                                                      low_cpu_mem_usage=True,
                                                      trust_remote_code=True
                                                     )
-        max_len = 1024
+        max_len = 4096
         task = "text-generation"
         T = 0        
         

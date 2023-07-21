@@ -17,7 +17,8 @@ The AMP Application has been configured to use the following
 
 ## Steps to Setup the CML AMP Application
 
-Step 1.
+Step 1
+
 Navigate to CML Workspace -> Site Administration -> AMPs Tab
 
 Step 2
@@ -51,11 +52,18 @@ Step 1
 
 Navigate to the "Upload File" Tab and use the "Click to Upload Button" to upload a file
 
+![Uploading Files](images/File_Upload.png)
+
 Step 2
 
 Once the files have been uploaded, use the "Embed Document" button to store the document into VectorDB
-**Note** Embedding documents is lenghty process and can take some time to complete.
+
+**Note Embedding documents is lenghty process and can take some time to complete.**
+
+![Embedding Files](images/File_Embed.png)
 
 Step 3
 
 Once Embedding has completed, switch to the FileGPT tab and enter your questions via the textbox and Submit button below.
+
+![Asking Questions](images/Response.png)
