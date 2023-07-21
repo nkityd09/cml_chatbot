@@ -1,0 +1,53 @@
+name: CML Document Chatbot
+description: |
+  Complete this
+
+author: Cloudera Inc.
+specification_version: 1.0
+prototype_version: 1.0
+date: "2023-07-21"
+
+runtimes:
+  - editor: JupyterLab
+    kernel: Python 3.10
+    edition: Nvidia GPU
+
+tasks:
+  - type: run_session
+    name: Validate GPU Availibility
+    script: session-resource-validation/check_gpu_resources.py
+    short_summary: Check for GPU availibility. 
+    long_summary: Check GPUs are enabled on this workspace and are currently schedulable.
+    kernel: python3
+    cpu: 2
+    memory: 4
+  
+  - type: run_session
+    name: Validate GPU Capability
+    script: session-resource-validation/check_gpu_capability.py
+    short_summary: Check for GPU capability. 
+    long_summary: Check GPU device supports the CUDA capabilities required.
+    kernel: python3
+    cpu: 2
+    memory: 4
+    gpu: 1
+
+  - type: run_session
+    name: Install Dependencies
+    script: session-install-deps/install_dependencies.py
+    short_summary: Install Dependencies
+    kernel: python3
+    cpu: 2
+    memory: 8
+
+  - type: start_application
+    name: CML LLM Chatbot
+    subdomain: cmlllm
+    script: gradio-app/app.py
+    short_summary: Start CML LLM Chatbot application
+    long_summary: This application requires an available GPU to run the LLM model. Startup may be delayed if autoscaling is being performed or fail if GPU cannot be scheduled on this workspace. Please contact your administrator for GPU scheduling.
+    cpu: 4
+    memory: 32
+    gpu: 2
+    environment_variables:
+      TASK_TYPE: START_APPLICATION
