@@ -28,7 +28,8 @@ from InstructorEmbedding import INSTRUCTOR
 class CFG:
     model_name = 'falcon' # wizardlm, llama-2-13b, falcon
 
-access_token = os.environ["HF_TOKEN"]
+# Uncomment if you want to use Llama-2
+#access_token = os.environ["HF_TOKEN"]
     
 def get_model(model = CFG.model_name):
     
