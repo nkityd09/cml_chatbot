@@ -1,4 +1,4 @@
-# cml_chatbot
+# CML PDF Document Chatbot
 Git Repo for CML Document Chatbot
 
 ## Features Under Development
