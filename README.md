@@ -9,8 +9,6 @@ Git Repo for CML Document Chatbot
 2. [Llama-2 7B and 13B Chat LLMs](https://huggingface.co/meta-llama)  **Tested Successfully** -> [Documentation](amp_extensions/Using_Llama-2.md)
 3. Conversational Memory (**In Progress**)
 
-#### **Note:** This AMP has been tested with Llama-2. The steps to setup Llama-2 will be added to the README shortly.
-
 ## Resource Requirements
 
 The AMP Application has been configured to use the following 
