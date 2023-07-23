@@ -19,7 +19,8 @@ https://s3.amazonaws.com/public.trychroma.com/cloudformation/latest/chroma.cf.js
 5. Add Tags if required and then Click “Next”
 6. Review all settings and Click “Submit”
 7. Once the stack creation  completes successfully, navigate to the Outputs Tab to see the Public IP of the instance
-![Chroma CloudFormation](images/chroma_cfn.png)
+
+![Chroma CloudFormation](../images/chroma_cfn.png)
 
 ## Setting the AMP Application to use Standalone Chroma
 

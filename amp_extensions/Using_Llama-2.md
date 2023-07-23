@@ -4,20 +4,20 @@ Meta’s Llama-2 is a recently released LLM model which requires additional acce
 
 Once you have access to the Gated Model on Hugging Face
 
-![Meta HF](images/meta_hf.png)
+![Meta HF](../images/meta_hf.png)
 
 You will need to copy your HuggingFace Token into the Project Environment Variable by following these steps
 1. Navigate to the Settings Page of your Profile on HuggingFace
 
-![HF Settings](images/hf_settings.png)
+![HF Settings](../images/hf_settings.png)
 
 2. Click on the Access Tokens Tab and generate a new token if you do not already have one
 
-![HF Tokens](images/hf_tokens.png)
+![HF Tokens](../images/hf_tokens.png)
 
 3. Copy this token and navigate to the CML Project’s Project Settings and the Advanced Tab
 
-![CML Env](images/cml_env.png)
+![CML Env](../images/cml_env.png)
 
 4. Add the variable “HF_TOKEN” as the Key and the copied Token Value from the previous step as the Value.
 
