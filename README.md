@@ -1,6 +1,19 @@
 # CML PDF Document Chatbot
 Git Repo for CML Document Chatbot
 
+## Key Features
+
+- Load PDF Documents directly from the App UI
+- Chunking and Cleaning of Documents
+- Model of Choice from HuggingFace can be set in the App
+- Chaining of Prompt and Context
+- Gradio Chatbot Interface
+
+Extensions
+- Standalone VectorDB
+- Meta Llama-2 integration
+
+
 ## Features Under Development
 
 1. Independent VectorDB 
