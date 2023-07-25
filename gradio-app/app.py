@@ -30,7 +30,8 @@ class CFG:
 
 # Uncomment if you want to use Llama-2
 #access_token = os.environ["HF_TOKEN"]
-    
+#!huggingface-cli login --token $HF_TOKEN
+
 def get_model(model = CFG.model_name):
     
     print('\nDownloading model: ', model, '\n\n')
@@ -125,9 +126,6 @@ def upload_file(files):
 ### download embeddings model
 instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"}) #TODO Check Cuda utilization, Specify single GPU if needed
 
-
-
-
 def embed_documents():
 
     loader = DirectoryLoader("/home/cdsw/data/",
@@ -180,7 +178,7 @@ def embed_documents():
     return output
 
 
-##### Experimentatal Code ##### 
+
 
 #TODO Write comments for each fucntion below
 #TODO Can these by moved to a separate file ?
@@ -229,10 +227,6 @@ def llm_ans(query):
 def reset_state():
     return [], [], None
 
-##### Experimentatal Code #####   
-
-
-
 
 with gr.Blocks() as demo:
     with gr.Tab("FileGPT"):
@@ -263,11 +257,6 @@ with gr.Blocks() as demo:
                 txt_3 = gr.Textbox(value="", label="Output")
                 
     embed_button.click(embed_documents, show_progress=True, outputs=[txt_3])
-    
-
-  
-
-
     
 demo.queue()
 
