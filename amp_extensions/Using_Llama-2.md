@@ -30,6 +30,7 @@ class CFG:
 ```
 Uncomment the “access_token” variable
 ```python
-# Uncomment if you want to use Llama-2
+# Uncomment the below lines to use Llama-2
 access_token = os.environ["HF_TOKEN"]
+!huggingface-cli login --token $HF_TOKEN
 ```

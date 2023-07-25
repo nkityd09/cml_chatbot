@@ -11,3 +11,4 @@ accelerate
 bitsandbytes 
 xformers 
 einops
+pysqlite3-binary

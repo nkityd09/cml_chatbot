@@ -31,6 +31,8 @@ Add the following Import statements
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+import chromadb
+from chromadb.config import Settings
 ```
 Add the following Code snippet with the Public IP of the Server from the Chroma Cloudformation Outputs
 ```python

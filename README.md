@@ -17,7 +17,7 @@ Extensions
 ## Features Under Development
 
 1. Independent VectorDB 
-   - [ChromaDB](https://docs.trychroma.com/)  **Tested Successfully** -> [Documentation](amp_extensions/Setting_Up_ChromaDB.md)
+   - [ChromaDB](https://docs.trychroma.com/)  **Testing In Progress** -> [Documentation](amp_extensions/Setting_Up_ChromaDB.md)
    - [Milvus](https://milvus.io/) (**In Progress**)
 2. [Llama-2 7B and 13B Chat LLMs](https://huggingface.co/meta-llama)  **Tested Successfully** -> [Documentation](amp_extensions/Using_Llama-2.md)
 3. Conversational Memory (**In Progress**)

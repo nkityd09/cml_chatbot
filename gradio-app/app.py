@@ -124,7 +124,7 @@ def upload_file(files):
 
 
 ### download embeddings model
-instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"}) #TODO Check Cuda utilization, Specify single GPU if needed
+embedding_function = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"}) #TODO Check Cuda utilization, Specify single GPU if needed
 
 def embed_documents():
 
@@ -154,7 +154,7 @@ def embed_documents():
     
     persist_directory = 'data' 
     vectordb = Chroma.from_documents(documents=texts,
-                                 embedding=instructor_embeddings,
+                                 embedding=embedding_function,
                                  persist_directory=persist_directory,
                                  collection_name='data')
 
