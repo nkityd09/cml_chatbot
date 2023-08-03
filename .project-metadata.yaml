@@ -7,6 +7,16 @@ specification_version: 1.0
 prototype_version: 1.0
 date: "2023-07-21"
 
+environment_variables:
+  HF_TOKEN:
+    default: " "
+    description: >-
+      Provide Hugging Face Access Token to access Gated Models like Llama-2
+  VectorDB:
+    default: "CHROMA"
+    description: >-
+      Options: ChromaDB, Milvus
+
 runtimes:
   - editor: JupyterLab
     kernel: Python 3.10
