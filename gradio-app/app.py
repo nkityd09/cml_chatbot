@@ -23,33 +23,41 @@ from InstructorEmbedding import INSTRUCTOR
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 import glob
 from InstructorEmbedding import INSTRUCTOR
+from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+import uuid
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+import chromadb
+from chromadb.config import Settings
+
+IP_ADDR="3.16.54.0"
+chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 
 
 class CFG:
-    model_name = 'falcon' # vicuna, llama-2-7b, llama-2-13b, falcon
+    model_name = 'llama-2' # wizardlm, llama-2, bloom, falcon
 
-# Uncomment if you want to use Llama-2
-#access_token = os.environ["HF_TOKEN"]
-#!huggingface-cli login --token $HF_TOKEN
-
+access_token = os.environ["HF_TOKEN"]
+    
 def get_model(model = CFG.model_name):
     
     print('\nDownloading model: ', model, '\n\n')
     
-    if CFG.model_name == 'vicuna':
-        tokenizer = AutoTokenizer.from_pretrained('eachadea/vicuna-7b-1.1') 
+    if CFG.model_name == 'wizardlm':
+        tokenizer = AutoTokenizer.from_pretrained('TheBloke/wizardLM-7B-HF')
         
-        model = AutoModelForCausalLM.from_pretrained('eachadea/vicuna-7b-1.1',
+        model = AutoModelForCausalLM.from_pretrained('TheBloke/wizardLM-7B-HF',
                                                      load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True
                                                     )
-        max_len = 4096
+        max_len = 1024
         task = "text-generation"
         T = 0
         
-    elif CFG.model_name == 'llama-2-13b':
+    elif CFG.model_name == 'llama-2':
         tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b-chat-hf") #meta-llama/Llama-2-7b-chat-hf
         
         model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b-chat-hf", #meta-llama/Llama-2-7b-chat-hf
@@ -63,17 +71,16 @@ def get_model(model = CFG.model_name):
         task = "text-generation"
         T = 0.1
 
-    elif CFG.model_name == 'llama-2-7b': 
-        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf")
+    elif CFG.model_name == 'bloom':
+        tokenizer = AutoTokenizer.from_pretrained("bigscience/bloom-7b1")
         
-        model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf",
+        model = AutoModelForCausalLM.from_pretrained("bigscience/bloom-7b1",
                                                      load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True,
-                                                     token=access_token
                                                     )
-        max_len = 4096
+        max_len = 1024
         task = "text-generation"
         T = 0
         
@@ -87,7 +94,7 @@ def get_model(model = CFG.model_name):
                                                      low_cpu_mem_usage=True,
                                                      trust_remote_code=True
                                                     )
-        max_len = 4096
+        max_len = 1024
         task = "text-generation"
         T = 0        
         
@@ -112,6 +119,11 @@ llm = HuggingFacePipeline(pipeline=pipe)
 
 
 
+
+##########################
+#######Working Code#######
+##########################
+
 #Uploading Files to target location
 target = '/home/cdsw/data/'
 def upload_file(files):
@@ -124,9 +136,27 @@ def upload_file(files):
 
 
 ### download embeddings model
-embedding_function = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"}) #TODO Check Cuda utilization, Specify single GPU if needed
+# instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"})
 
-def embed_documents():
+embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2") #TODO: Find replacement
+
+langchain_chroma = Chroma(
+client=chroma,
+collection_name="default",
+embedding_function=embedding_function)
+
+retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
+
+def collection_lists():
+    collection_list = []
+    chroma_collections = chroma.list_collections()
+    for collection in chroma_collections:
+        collection_list.append(collection.name)
+    return collection_list
+
+collection_list = collection_lists()
+
+def embed_documents(collection):
 
     loader = DirectoryLoader("/home/cdsw/data/",
                          glob="**/*.pdf",
@@ -144,22 +174,21 @@ def embed_documents():
                                                          .replace('    ', ' ')\
                                                          .replace('   ', ' ')\
                                                          .replace('  ', ' ')
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    texts = text_splitter.split_documents(documents)
-    len(texts)
 
-    
-    ### create embeddings and DB
-    
-    
-    persist_directory = 'data' 
-    vectordb = Chroma.from_documents(documents=texts,
-                                 embedding=embedding_function,
-                                 persist_directory=persist_directory,
-                                 collection_name='data')
+#    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+#    texts = text_splitter.split_documents(documents)
+    langchain_chroma = Chroma(
+    client=chroma,
+    collection_name=collection,
+    embedding_function=embedding_function)    
 
-    ### persist Chroma database
-    vectordb.persist()
+    collection = chroma.get_collection(collection) # Needs to be initialized as LangChain cannot add texts
+
+    for doc in documents: #replace texts with documents if error
+        collection.add(
+            ids=[str(uuid.uuid1())], metadatas=doc.metadata, documents=doc.page_content
+        )
+
     pattern = "/home/cdsw/data/*.pdf"
     files = glob.glob(pattern)
     
@@ -173,20 +202,26 @@ def embed_documents():
         os.remove(file)
     #Extra Line
     global retriever
-    retriever = vectordb.as_retriever(search_kwargs={"k": 5, "search_type" : "similarity"})
+    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
     
     return output
 
 
+##### Experimentatal Code ##### 
+def set_retriver(collection_name):
+    langchain_chroma = Chroma(
+    client=chroma,
+    collection_name= collection_name,
+    embedding_function=embedding_function)
+    
+    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
+    return retriever
 
 
-#TODO Write comments for each fucntion below
-#TODO Can these by moved to a separate file ?
-
-def chain(query):
+def chain(query, retriever):
     qa_chain = RetrievalQA.from_chain_type(llm=llm, 
                                        chain_type="stuff", 
-                                       retriever=retriever, 
+                                       retriever=set_retriver(retriever), 
                                        return_source_documents=True,
                                        verbose=False)
     return qa_chain(query)
@@ -195,8 +230,8 @@ def add_text(history, text):
     history = history + [(text, None)]
     return history, ""
 
-def bot(history):
-    response = llm_ans(history[-1][0])
+def bot(history, collection):
+    response = llm_ans(history[-1][0], collection)
     history[-1][1] = response
     return history
 
@@ -219,13 +254,29 @@ def process_llm_response(llm_response):
         print(source.metadata['source'])
     return result    
 
-def llm_ans(query):
-    llm_response = chain(query)
-    ans = process_llm_response(llm_response)
-    return ans        
+# def llm_ans(query, collection):
+#     llm_response = chain(query, collection) # add retriever
+#     ans = process_llm_response(llm_response)
+#     return ans    
+
+def llm_ans(query, collection):
+    llm_response = chain(query, collection)
+    # print(llm_response['result'])
+    sources = []
+    for source in llm_response["source_documents"]:
+        source_file = source.metadata['source']
+        source_file = source_file.replace("/home/cdsw/data/", "")
+        sources.append(source_file)
+    source_files = "\n".join(sources) 
+    ans = llm_response['result'] + "\n \n Relevant Sources: \n" + source_files
+    return ans
 
 def reset_state():
     return [], [], None
+
+##### Experimentatal Code #####   
+
+
 
 
 with gr.Blocks() as demo:
@@ -239,12 +290,20 @@ with gr.Blocks() as demo:
                 with gr.Column(min_width=32, scale=1):
                     submitBtn = gr.Button("Submit", variant="primary")
             with gr.Column(scale=1):
+                collection_dropdown = gr.Dropdown(
+                    collection_list, label="Chroma Collections", info="Choose a Collection to Query",
+                    value = "default", max_choices=1
+                )
                 emptyBtn = gr.Button("Clear History")
-        user_input.submit(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, chatbot, chatbot)
-        submitBtn.click(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, chatbot, chatbot)
+                # max_length = gr.Slider(0, 32768, value=8192, step=1.0, label="Maximum length", interactive=True)
+                # top_p = gr.Slider(0, 1, value=0.8, step=0.01, label="Top P", interactive=True)
+                # temperature = gr.Slider(0, 1, value=0.95, step=0.01, label="Temperature", interactive=True)
+        user_input.submit(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, [chatbot, collection_dropdown], chatbot)
+        submitBtn.click(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, [chatbot, collection_dropdown], chatbot)
         history = gr.State([])
         past_key_values = gr.State(None)
         emptyBtn.click(reset_state, outputs=[chatbot, history, past_key_values], show_progress=True)
+        
 
     with gr.Tab("Upload File"):
         with gr.Row():
@@ -253,18 +312,28 @@ with gr.Blocks() as demo:
                 upload_button = gr.UploadButton("Click to Upload a File", file_types=[".pdf",".csv",".doc"], file_count="multiple")
                 upload_button.upload(upload_file, upload_button, file_output)
             with gr.Column(scale=1):
+                embed_dropdown = gr.Dropdown(
+                    collection_list, label="Chroma Collections", info="Choose a Collection to Query", 
+                    value = "default", max_choices=1
+                )
                 embed_button = gr.Button("Embed Document", variant="primary")
                 txt_3 = gr.Textbox(value="", label="Output")
                 
-    embed_button.click(embed_documents, show_progress=True, outputs=[txt_3])
+                
+    embed_button.click(embed_documents, embed_dropdown, show_progress=True, outputs=[txt_3])
+    
+
+
     
 demo.queue()
+
 
 if __name__ == "__main__":
     demo.launch(share=True,
                 enable_queue=True,
                 show_error=True,
                 server_name='127.0.0.1',
-                server_port=int(os.getenv('CDSW_APP_PORT')))
+                server_port=int(os.getenv('CDSW_APP_PORT'))) 
+
     print("Gradio app ready")
     
