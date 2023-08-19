@@ -8,18 +8,14 @@ prototype_version: 1.0
 date: "2023-07-21"
 
 environment_variables:
-  HF_TOKEN:
-    default: " "
+  VectorDB IP:
+    default: ""
     description: >-
-      Provide Hugging Face Access Token to access Gated Models like Llama-2
-  VectorDB:
-    default: "CHROMA"
-    description: >-
-      Options: ChromaDB, Milvus
+      Provide IP of Chroma DB
 
 runtimes:
   - editor: JupyterLab
-    kernel: Python 3.10
+    kernel: Python 3.9
     edition: Nvidia GPU
 
 tasks:
@@ -42,14 +38,6 @@ tasks:
     memory: 4
     gpu: 1
   
-  - type: run_session
-    name: Install Dependencies
-    script: session-install-deps/install_setup_tools.py
-    short_summary: Install Dependencies
-    kernel: python3
-    cpu: 2
-    memory: 8
-
   - type: run_session
     name: Install Dependencies
     script: session-install-deps/install_dependencies.py

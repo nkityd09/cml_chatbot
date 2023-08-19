@@ -31,14 +31,14 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import chromadb
 from chromadb.config import Settings
 
-IP_ADDR="3.16.54.0"
+IP_ADDR=os.environ["VectorDB_IP"]
 chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 
 
 class CFG:
-    model_name = 'llama-2' # wizardlm, llama-2, bloom, falcon
+    model_name = 'falcon' # wizardlm, llama-2, bloom, falcon
 
-access_token = os.environ["HF_TOKEN"]
+#access_token = os.environ["HF_TOKEN"]
     
 def get_model(model = CFG.model_name):
     
@@ -88,13 +88,13 @@ def get_model(model = CFG.model_name):
         tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-7b-instruct")
         
         model = AutoModelForCausalLM.from_pretrained("tiiuae/falcon-7b-instruct",
-                                                     load_in_8bit=True,
+                                                     #load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True,
                                                      trust_remote_code=True
                                                     )
-        max_len = 1024
+        max_len = 2048
         task = "text-generation"
         T = 0        
         
