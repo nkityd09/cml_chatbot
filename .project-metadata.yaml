@@ -8,7 +8,7 @@ prototype_version: 1.0
 date: "2023-07-21"
 
 environment_variables:
-  VectorDB IP:
+  VectorDB_IP:
     default: ""
     description: >-
       Provide IP of Chroma DB
