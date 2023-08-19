@@ -1,4 +1,4 @@
-chromadb==0.3.29
+chromadb
 gradio
 langchain
 typing-inspect==0.8.0
