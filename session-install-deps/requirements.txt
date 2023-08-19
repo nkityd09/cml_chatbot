@@ -1,6 +1,8 @@
 chromadb==0.3.29
 gradio
 langchain
+typing-inspect==0.8.0
+typing_extensions==4.5.0
 tiktoken 
 pypdf 
 faiss-gpu
@@ -12,4 +14,3 @@ bitsandbytes
 xformers 
 einops
 pysqlite3-binary
-openai
