@@ -27,7 +27,13 @@ tasks:
     kernel: python3
     cpu: 2
     memory: 4
-  
+  - type: run_session
+    name: Install Dependencies
+    script: session-install-deps/install_setup_tools.py
+    short_summary: Install Dependencies
+    kernel: python3
+    cpu: 2
+    memory: 8
   - type: run_session
     name: Validate GPU Capability
     script: session-resource-validation/check_gpu_capability.py

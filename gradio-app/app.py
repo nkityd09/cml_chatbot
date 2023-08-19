@@ -65,7 +65,7 @@ def get_model(model = CFG.model_name):
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True,
-                                                     token=access_token
+                                                     #token=access_token
                                                     )
         max_len = 4096
         task = "text-generation"
