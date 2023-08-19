@@ -2,7 +2,7 @@
 
 The current implementation uses an in-memory version of ChromaDB which is great for prototyping and demos, however, real world production use cases require a standalone VectorDB where data can be stored.
 
-To facilitate this, I have tested the deployment of Chroma on a long-running server, and connect to it remotely via the AMP Application. Chroma provides a CloudFormation stack which can be used to deploy an EC2 instance with Chroma running on it via Docker. The application is accessible via port 8000 and the Public IP address of the instance.
+To facilitate this, I have tested the deployment of Chroma on a long-running server, and connect to it remotely via the CML Application. Chroma provides a CloudFormation stack which can be used to deploy an EC2 instance with Chroma running on it via Docker. The application is accessible via port 8000 and the Public IP address of the instance.
 
 The official documentation and steps can be found [here](https://docs.trychroma.com/deployment).
 
@@ -22,34 +22,6 @@ https://s3.amazonaws.com/public.trychroma.com/cloudformation/latest/chroma.cf.js
 
 ![Chroma CloudFormation](../images/chroma_cfn.png)
 
-## Setting the AMP Application to use Standalone Chroma
 
-Open the gradio_app/app.py file for editing and make the following changes
 
-Add the following Import statements
-```python
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-import chromadb
-from chromadb.config import Settings
-```
-Add the following Code snippet with the Public IP of the Server from the Chroma Cloudformation Outputs
-```python
-IP_ADDR="3.16.54.0" #Change to your Chroma Public IP
-chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
-```
-Initialize the Langchain Chroma library with client details
-```python
-langchain_chroma = Chroma(
-    client=chroma,
-    collection_name="volkswagen_data",
-    embedding_function=instructor_embeddings
-)
-```
-Change the vector variable to use the new langchain_chroma client
-```python
-### create embeddings and DB
-vectordb = langchain_chroma.from_documents(documents=texts,
-                                 embedding=embedding_function)
-```
+
