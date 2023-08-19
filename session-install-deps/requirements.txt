@@ -1,6 +1,6 @@
 chromadb==0.3.29
 gradio
-langchain==0.0.223
+langchain
 tiktoken 
 pypdf 
 faiss-gpu
