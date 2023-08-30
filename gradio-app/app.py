@@ -31,6 +31,8 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import chromadb
 from chromadb.config import Settings
 from langchain.prompts import PromptTemplate
+langchain.verbose = True
+
 
 IP_ADDR=os.environ["VectorDB_IP"]
 chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
@@ -49,7 +51,7 @@ def get_model(model = CFG.model_name):
         tokenizer = AutoTokenizer.from_pretrained('tiiuae/falcon-40b-instruct')
         
         model = AutoModelForCausalLM.from_pretrained('tiiuae/falcon-40b-instruct',
-                                                     load_in_8bit=True,
+                                                     #load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True,
@@ -90,7 +92,7 @@ def get_model(model = CFG.model_name):
         tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-7b-instruct")
         
         model = AutoModelForCausalLM.from_pretrained("tiiuae/falcon-7b-instruct",
-                                                     load_in_8bit=True,
+                                                     #load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      #low_cpu_mem_usage=True,
