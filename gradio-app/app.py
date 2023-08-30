@@ -41,10 +41,24 @@ chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 class CFG:
     model_name = 'falcon-7' # wizardlm, llama-2, bloom, falcon-40
 
+##### Uncomment the below lines for Llama-2 #####
 #access_token = os.environ["HF_TOKEN"]
+#!huggingface-cli login --token $HF_TOKEN
     
 def get_model(model = CFG.model_name):
+    """
+    Given a model name, downloads the appropriate tokenizer and pre-trained model.
     
+    Args:
+    - model (str): Model name, defaults to CFG.model_name
+    
+    Returns:
+    - tokenizer: Tokenizer instance for the given model.
+    - model: Pre-trained model instance.
+    - max_len (int): Maximum sequence length for the given model.
+    - task (str): Task the model is suited for.
+    - T (float): Temperature value for the model's text-generation.
+    """
     print('\nDownloading model: ', model, '\n\n')
     
     if CFG.model_name == 'falcon-40':
@@ -109,6 +123,7 @@ def get_model(model = CFG.model_name):
 
 tokenizer, model, max_len, task, T = get_model(CFG.model_name)
 
+#Builds Transformers Pipeline to be used for inference
 pipe = pipeline(
     task=task,
     model=model, 
@@ -135,15 +150,16 @@ def upload_file(files):
     return file_paths
 
 
-
+#Embedding function which will be used to convert the text to Vector Embeddings
 embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2") #TODO: Find replacement
 
+#Defining LangChain's Chroma Client 
 langchain_chroma = Chroma(
 client=chroma,
 collection_name="default",
 embedding_function=embedding_function)
 
-retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
+#retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
 
 def create_default_collection():
     """
@@ -156,7 +172,7 @@ def create_default_collection():
 
 def collection_lists():
     """
-    
+    List All Collections available in ChromaDB
     """
     collection_list = []
     chroma_collections = chroma.list_collections()
@@ -171,7 +187,15 @@ collection_list = collection_lists()
 
 def embed_documents(collection):
     """
+    Given a collection name, this function loads PDF documents from a specified directory, preprocesses their content, 
+    and then embeds the documents into a vector database using Chroma. 
+    After embedding, it deletes the processed PDFs from the directory.
     
+    Args:
+    - collection (str): Name of the collection to be used in the Chroma vector database.
+
+    Returns:
+    - output (str): Message indicating which documents have been embedded.
     """
     loader = DirectoryLoader("/home/cdsw/data/",
                          glob="**/*.pdf",
@@ -190,8 +214,7 @@ def embed_documents(collection):
                                                          .replace('   ', ' ')\
                                                          .replace('  ', ' ')
 
-#    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-#    texts = text_splitter.split_documents(documents)
+
     langchain_chroma = Chroma(
     client=chroma,
     collection_name=collection,
@@ -210,13 +233,9 @@ def embed_documents(collection):
     
     output = f"Documents have been embedded: {files}"
     print(output)
-    # Search files with .pdf extension in directory and delete them
-
-
-    # deleting the files with txt extension
+    # Deleting Files
     for file in files:
         os.remove(file)
-    #Extra Line
     
     return output
 
@@ -232,7 +251,7 @@ def set_retriver(collection_name):
     return retriever
 
 
-# Build prompt
+# Prompt Template for Langchain
 template = """You are a helpful AI assistant and provide the answer for the question based on the given context.
 Context:{context}
 >>QUESTION<<{question}
@@ -242,6 +261,16 @@ QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
   
 
 def chain(query, retriever):
+    """
+    Executes a retrieval-based question-answering chain with specified query and retriever.
+
+    Args:
+    - query (str): The query/question to be answered.
+    - retriever (Retriever): The retriever object responsible for fetching relevant documents.
+
+    Returns:
+    - dict: Response from the RetrievalQA.
+    """
     qa_chain = RetrievalQA.from_chain_type(llm=llm, 
                                        chain_type="stuff", 
                                        retriever=set_retriver(retriever), 
@@ -252,12 +281,29 @@ def chain(query, retriever):
 
 def add_text(history, text):
     """
+    Adds the user's text input to the conversation history.
+
+    Args:
+    - history (list): The existing conversation history.
+    - text (str): The user's input text.
+
+    Returns:
+    - list: Updated history with the user's input.
+    - str: Empty string (reserved for future use).
     """
     history = history + [(text, None)]
     return history, ""
 
 def bot(history, collection):
     """
+    Generates a response using a Language Model and updates the conversation history.
+
+    Args:
+    - history (list): The existing conversation history.
+    - collection (str): The name of the collection used for document retrieval.
+
+    Returns:
+    - list: Updated conversation history including the bot's response.
     """
     response = llm_ans(history[-1][0], collection)
     history[-1][1] = response
@@ -265,6 +311,14 @@ def bot(history, collection):
 
 def wrap_text_preserve_newlines(text, width=110):
     """
+    Wraps the text while preserving newlines to fit within a specified width.
+
+    Args:
+    - text (str): The input text.
+    - width (int): The maximum width of the text.
+
+    Returns:
+    - str: Wrapped text with newlines preserved.
     """
     # Split the input text into lines based on newline characters
     lines = text.split('\n')
@@ -279,6 +333,13 @@ def wrap_text_preserve_newlines(text, width=110):
 
 def process_llm_response(llm_response):
     """
+    Processes the Language Model's response by wrapping the text and printing the source documents.
+
+    Args:
+    - llm_response (dict): The response from the Language Model.
+
+    Returns:
+    - str: The wrapped text.
     """
     result = wrap_text_preserve_newlines(llm_response['result'])
     print('\n\nSources:')
@@ -290,6 +351,14 @@ def process_llm_response(llm_response):
 
 def llm_ans(query, collection):
     """
+    Gets the answer from the Language Model including relevant source files.
+
+    Args:
+    - query (str): The query/question to be answered.
+    - collection (str): The name of the collection used for document retrieval.
+
+    Returns:
+    - str: The answer along with relevant source files.
     """
     llm_response = chain(query, collection)
     # print(llm_response['result'])
@@ -304,9 +373,11 @@ def llm_ans(query, collection):
 
 def reset_state():
     """
+    Resets the Gradio UI
     """
     return [], [], None
 
+#Gradio UI Code Block
 
 with gr.Blocks() as demo:
     with gr.Tab("FileGPT"):
