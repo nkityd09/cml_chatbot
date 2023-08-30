@@ -47,6 +47,7 @@ https://raw.githubusercontent.com/nkityd09/cml_chatbot/main/catalog.yaml
 
 6. Once the AMP steps are completed, We can access the Gradio UI via the Applications page.
 
+**Note**: The application creates a "default" collection in the VectorDB when the AMP is launched the first time.
 
 ## Steps to Use the Gradio App
 

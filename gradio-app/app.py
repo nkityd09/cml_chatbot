@@ -30,13 +30,14 @@ import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import chromadb
 from chromadb.config import Settings
+from langchain.prompts import PromptTemplate
 
 IP_ADDR=os.environ["VectorDB_IP"]
 chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 
 
 class CFG:
-    model_name = 'falcon' # wizardlm, llama-2, bloom, falcon
+    model_name = 'falcon-7' # wizardlm, llama-2, bloom, falcon-40
 
 #access_token = os.environ["HF_TOKEN"]
     
@@ -44,23 +45,24 @@ def get_model(model = CFG.model_name):
     
     print('\nDownloading model: ', model, '\n\n')
     
-    if CFG.model_name == 'wizardlm':
-        tokenizer = AutoTokenizer.from_pretrained('TheBloke/wizardLM-7B-HF')
+    if CFG.model_name == 'falcon-40':
+        tokenizer = AutoTokenizer.from_pretrained('tiiuae/falcon-40b-instruct')
         
-        model = AutoModelForCausalLM.from_pretrained('TheBloke/wizardLM-7B-HF',
+        model = AutoModelForCausalLM.from_pretrained('tiiuae/falcon-40b-instruct',
                                                      load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
-                                                     low_cpu_mem_usage=True
+                                                     low_cpu_mem_usage=True,
+                                                     trust_remote_code=True
                                                     )
         max_len = 1024
         task = "text-generation"
         T = 0
         
     elif CFG.model_name == 'llama-2':
-        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-13b-chat-hf") #meta-llama/Llama-2-7b-chat-hf
+        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-chat-hf") #meta-llama/Llama-2-13b-chat-hf
         
-        model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-13b-chat-hf", #meta-llama/Llama-2-7b-chat-hf
+        model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-chat-hf", #meta-llama/Llama-2-13b-chat-hf
                                                      load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
@@ -84,14 +86,14 @@ def get_model(model = CFG.model_name):
         task = "text-generation"
         T = 0
         
-    elif CFG.model_name == 'falcon':
+    elif CFG.model_name == 'falcon-7':
         tokenizer = AutoTokenizer.from_pretrained("tiiuae/falcon-7b-instruct")
         
         model = AutoModelForCausalLM.from_pretrained("tiiuae/falcon-7b-instruct",
-                                                     #load_in_8bit=True,
+                                                     load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
-                                                     low_cpu_mem_usage=True,
+                                                     #low_cpu_mem_usage=True,
                                                      trust_remote_code=True
                                                     )
         max_len = 2048
@@ -119,14 +121,11 @@ llm = HuggingFacePipeline(pipeline=pipe)
 
 
 
-
-##########################
-#######Working Code#######
-##########################
-
 #Uploading Files to target location
 target = '/home/cdsw/data/'
 def upload_file(files):
+    """
+    """
     file_paths = [file.name for file in files]
     print(file_paths)
     for file in file_paths:
@@ -134,9 +133,6 @@ def upload_file(files):
     return file_paths
 
 
-
-### download embeddings model
-# instructor_embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl",model_kwargs={"device": "cuda"})
 
 embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2") #TODO: Find replacement
 
@@ -147,17 +143,34 @@ embedding_function=embedding_function)
 
 retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
 
+def create_default_collection():
+    """
+    Create Default Collection in ChromaDB if no collections exists
+    """
+    chromadb.create_collection("default")
+    return "Created Default Collection"
+
+
+
 def collection_lists():
+    """
+    
+    """
     collection_list = []
     chroma_collections = chroma.list_collections()
-    for collection in chroma_collections:
-        collection_list.append(collection.name)
+    if chroma_collections == None:
+        create_default_collection()
+    else:
+        for collection in chroma_collections:
+            collection_list.append(collection.name)
     return collection_list
 
 collection_list = collection_lists()
 
 def embed_documents(collection):
-
+    """
+    
+    """
     loader = DirectoryLoader("/home/cdsw/data/",
                          glob="**/*.pdf",
                          loader_cls=PyPDFLoader,
@@ -184,7 +197,8 @@ def embed_documents(collection):
 
     collection = chroma.get_collection(collection) # Needs to be initialized as LangChain cannot add texts
 
-    for doc in documents: #replace texts with documents if error
+    # Document is chunked per page. Each page will be an entry in the Vector DB
+    for doc in documents: 
         collection.add(
             ids=[str(uuid.uuid1())], metadatas=doc.metadata, documents=doc.page_content
         )
@@ -201,8 +215,6 @@ def embed_documents(collection):
     for file in files:
         os.remove(file)
     #Extra Line
-    global retriever
-    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
     
     return output
 
@@ -214,28 +226,44 @@ def set_retriver(collection_name):
     collection_name= collection_name,
     embedding_function=embedding_function)
     
-    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 3, "search_type" : "similarity"})
+    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 2, "search_type" : "similarity"})
     return retriever
 
+
+# Build prompt
+template = """You are a helpful AI assistant and provide the answer for the question based on the given context.
+Context:{context}
+>>QUESTION<<{question}
+>>ANSWER<<"""
+QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+
+  
 
 def chain(query, retriever):
     qa_chain = RetrievalQA.from_chain_type(llm=llm, 
                                        chain_type="stuff", 
                                        retriever=set_retriver(retriever), 
                                        return_source_documents=True,
-                                       verbose=False)
+                                       chain_type_kwargs={"prompt": QA_CHAIN_PROMPT},
+                                       verbose=True)
     return qa_chain(query)
 
 def add_text(history, text):
+    """
+    """
     history = history + [(text, None)]
     return history, ""
 
 def bot(history, collection):
+    """
+    """
     response = llm_ans(history[-1][0], collection)
     history[-1][1] = response
     return history
 
 def wrap_text_preserve_newlines(text, width=110):
+    """
+    """
     # Split the input text into lines based on newline characters
     lines = text.split('\n')
 
@@ -248,18 +276,19 @@ def wrap_text_preserve_newlines(text, width=110):
     return wrapped_text
 
 def process_llm_response(llm_response):
+    """
+    """
     result = wrap_text_preserve_newlines(llm_response['result'])
     print('\n\nSources:')
     for source in llm_response["source_documents"]:
         print(source.metadata['source'])
     return result    
 
-# def llm_ans(query, collection):
-#     llm_response = chain(query, collection) # add retriever
-#     ans = process_llm_response(llm_response)
-#     return ans    
+ 
 
 def llm_ans(query, collection):
+    """
+    """
     llm_response = chain(query, collection)
     # print(llm_response['result'])
     sources = []
@@ -272,11 +301,9 @@ def llm_ans(query, collection):
     return ans
 
 def reset_state():
+    """
+    """
     return [], [], None
-
-##### Experimentatal Code #####   
-
-
 
 
 with gr.Blocks() as demo:
@@ -295,9 +322,6 @@ with gr.Blocks() as demo:
                     value = "default", max_choices=1
                 )
                 emptyBtn = gr.Button("Clear History")
-                # max_length = gr.Slider(0, 32768, value=8192, step=1.0, label="Maximum length", interactive=True)
-                # top_p = gr.Slider(0, 1, value=0.8, step=0.01, label="Top P", interactive=True)
-                # temperature = gr.Slider(0, 1, value=0.95, step=0.01, label="Temperature", interactive=True)
         user_input.submit(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, [chatbot, collection_dropdown], chatbot)
         submitBtn.click(add_text, [chatbot, user_input], [chatbot, user_input]).then(bot, [chatbot, collection_dropdown], chatbot)
         history = gr.State([])
