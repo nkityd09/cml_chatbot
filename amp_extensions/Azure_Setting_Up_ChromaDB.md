@@ -1,4 +1,4 @@
-# Installing Docker on RHEL 8.7 in Azure
+# Installing Docker and Chroma on RHEL 8.7 in Azure
 
 ## 1. Install required packages for Docker:
 
