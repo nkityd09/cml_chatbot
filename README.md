@@ -14,8 +14,8 @@ Extensions
 
 ## Prerequistes
 
-[Create a Standalone Chroma VectorDB instance in Azure](https://github.com/nkityd09/cml_chatbot/blob/main/amp_extensions/Azure_Setting_Up_ChromaDB.md)
-[Create a Standalone Chroma VectorDB instance in AWS](https://github.com/nkityd09/cml_chatbot/blob/main/amp_extensions/Setting_Up_ChromaDB.md)
+- [Create a Standalone Chroma VectorDB instance in Azure](https://github.com/nkityd09/cml_chatbot/blob/main/amp_extensions/Azure_Setting_Up_ChromaDB.md)
+- [Create a Standalone Chroma VectorDB instance in AWS](https://github.com/nkityd09/cml_chatbot/blob/main/amp_extensions/Setting_Up_ChromaDB.md)
 
 
 ## Features Under Development
