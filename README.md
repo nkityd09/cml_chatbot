@@ -14,6 +14,7 @@ Extensions
 
 ## Prerequistes
 
+[Create a Standalone Chroma VectorDB instance in Azure](https://github.com/nkityd09/cml_chatbot/blob/main/amp_extensions/Azure_Setting_Up_ChromaDB.md)
 [Create a Standalone Chroma VectorDB instance in AWS](https://github.com/nkityd09/cml_chatbot/blob/main/amp_extensions/Setting_Up_ChromaDB.md)
 
 
@@ -27,7 +28,7 @@ Extensions
 The AMP Application has been configured to use the following 
 - 4 CPU
 - 32 GB RAM
-- 2 GPU
+- 1 GPU
 
 ## Steps to Setup the CML AMP Application
 
