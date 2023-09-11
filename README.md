@@ -68,4 +68,4 @@ https://raw.githubusercontent.com/nkityd09/cml_chatbot/main/catalog.yaml
 
 ## Video Demo
 
-https://github.com/nkityd09/cml_chatbot/assets/101132317/425429d8-2d44-4d8b-8251-f8ff76d4ec34
+https://github.com/nkityd09/cml_chatbot/assets/101132317/0307ad7e-3e0c-48ee-bfed-2e6afeaafd5a
