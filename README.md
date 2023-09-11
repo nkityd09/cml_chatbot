@@ -1,8 +1,6 @@
 # CML PDF Document Chatbot
 Git Repo for CML Document Chatbot
 
-
-
 ## Key Features
 
 - Load PDF Documents directly from the App UI
@@ -67,3 +65,7 @@ https://raw.githubusercontent.com/nkityd09/cml_chatbot/main/catalog.yaml
 3. Once Embedding has completed, switch to the FileGPT tab and enter your questions via the textbox and Submit button below.
 
 ![Asking Questions](images/Response.png)
+
+## Video Demo
+
+https://github.com/nkityd09/cml_chatbot/assets/101132317/425429d8-2d44-4d8b-8251-f8ff76d4ec34
