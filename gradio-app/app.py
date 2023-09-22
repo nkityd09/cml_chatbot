@@ -39,7 +39,7 @@ chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 
 
 class CFG:
-    model_name = 'falcon-40' # wizardlm, llama-2, bloom, falcon-40
+    model_name = 'falcon-7' # wizardlm, llama-2, bloom, falcon-40
 
 ##### Uncomment the below lines for Llama-2 #####
 #access_token = os.environ["HF_TOKEN"]
