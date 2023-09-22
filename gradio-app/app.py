@@ -39,7 +39,7 @@ chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 
 
 class CFG:
-    model_name = 'falcon-7' # wizardlm, llama-2, bloom, falcon-40
+    model_name = 'falcon-40' # wizardlm, llama-2, bloom, falcon-40
 
 ##### Uncomment the below lines for Llama-2 #####
 #access_token = os.environ["HF_TOKEN"]
@@ -65,13 +65,13 @@ def get_model(model = CFG.model_name):
         tokenizer = AutoTokenizer.from_pretrained('tiiuae/falcon-40b-instruct')
         
         model = AutoModelForCausalLM.from_pretrained('tiiuae/falcon-40b-instruct',
-                                                     #load_in_8bit=True,
+                                                     load_in_8bit=True,
                                                      device_map='auto',
                                                      torch_dtype=torch.float16,
                                                      low_cpu_mem_usage=True,
                                                      trust_remote_code=True
                                                     )
-        max_len = 1024
+        max_len = 4096
         task = "text-generation"
         T = 0
         
@@ -252,7 +252,7 @@ def set_retriver(collection_name):
 
 
 # Prompt Template for Langchain
-template = """You are a helpful AI assistant and provide the answer for the question based on the given context.
+template = """You are a helpful AI assistant. Use only the below provided Context to answer the following question. If you do not know the answer respond with "I don't know."
 Context:{context}
 >>QUESTION<<{question}
 >>ANSWER<<"""
@@ -380,6 +380,7 @@ def reset_state():
 #Gradio UI Code Block
 
 with gr.Blocks() as demo:
+    gr.Markdown("# Falcon 40B")
     with gr.Tab("FileGPT"):
         chatbot = gr.Chatbot([], elem_id="chatbot").style(height=650)
         with gr.Row():
@@ -404,6 +405,7 @@ with gr.Blocks() as demo:
 
     with gr.Tab("Upload File"):
         with gr.Row():
+            title="Falcon 40B",
             with gr.Column(scale=4):
                 file_output = gr.File()
                 upload_button = gr.UploadButton("Click to Upload a File", file_types=[".pdf",".csv",".doc"], file_count="multiple")
@@ -433,4 +435,3 @@ if __name__ == "__main__":
                 server_port=int(os.getenv('CDSW_APP_PORT'))) 
 
     print("Gradio app ready")
-    

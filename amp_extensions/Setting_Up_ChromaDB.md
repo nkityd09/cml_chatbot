@@ -1,8 +1,6 @@
 # Setting UP Independent ChromaDB
 
-The current implementation uses an in-memory version of ChromaDB which is great for prototyping and demos, however, real world production use cases require a standalone VectorDB where data can be stored.
-
-To facilitate this, I have tested the deployment of Chroma on a long-running server, and connect to it remotely via the CML Application. Chroma provides a CloudFormation stack which can be used to deploy an EC2 instance with Chroma running on it via Docker. The application is accessible via port 8000 and the Public IP address of the instance.
+I have tested the deployment of Chroma on a long-running server, and connect to it remotely via the CML Application. Chroma provides a CloudFormation stack which can be used to deploy an EC2 instance with Chroma running on it via Docker. The application is accessible via port 8000 and the Public IP address of the instance.
 
 The official documentation and steps can be found [here](https://docs.trychroma.com/deployment).
 
@@ -22,6 +20,6 @@ https://s3.amazonaws.com/public.trychroma.com/cloudformation/latest/chroma.cf.js
 
 ![Chroma CloudFormation](../images/chroma_cfn.png)
 
-
+Make a note of the Public IP from the Outputs tab of Cloudformation. This will be needed when launching the CML AMP.
 
 
