@@ -65,3 +65,7 @@ https://raw.githubusercontent.com/nkityd09/cml_chatbot/main/catalog.yaml
 3. Once Embedding has completed, switch to the FileGPT tab and enter your questions via the textbox and Submit button below.
 
 ![Asking Questions](images/Response.png)
+
+## Video Demo
+
+https://github.com/nkityd09/cml_chatbot/assets/101132317/0307ad7e-3e0c-48ee-bfed-2e6afeaafd5a
