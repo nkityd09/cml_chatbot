@@ -380,7 +380,6 @@ def reset_state():
 #Gradio UI Code Block
 
 with gr.Blocks() as demo:
-    gr.Markdown("# Falcon 40B")
     with gr.Tab("FileGPT"):
         chatbot = gr.Chatbot([], elem_id="chatbot").style(height=650)
         with gr.Row():
