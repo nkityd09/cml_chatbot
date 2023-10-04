@@ -14,3 +14,4 @@ bitsandbytes
 xformers 
 einops
 pysqlite3-binary
+pandas==3.1.2
