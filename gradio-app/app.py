@@ -40,7 +40,7 @@ chroma = chromadb.HttpClient(host=IP_ADDR, port=8000)
 access_token = os.environ["HF_TOKEN"]
 hugging_face_model = os.environ["HF_MODEL"]
 
-tokenizer = AutoTokenizer.from_pretrained(hugging_face_model)
+tokenizer = AutoTokenizer.from_pretrained(hugging_face_model, use_auth_token=access_token)
 
 llm_model = AutoModelForCausalLM.from_pretrained(hugging_face_model, #meta-llama/Llama-2-13b-chat-hf
                                                      load_in_4bit=True,
