@@ -42,9 +42,9 @@ https://raw.githubusercontent.com/nkityd09/cml_chatbot/main/catalog.yaml
 4. Once added, We will be able to see the LLM PDF Document Chatbot in the AMP section and deploy it from there.
 
 5. During AMP deployment, we can set three environment varibales
-   - VectorDB_IP :- (Specify the Public IP address of host where ChromaDB is running)
-   - HF_MODEL:- HuggingFace Model Name (Defaults to mistralai/Mistral-7B-v0.1, please include the complete name of the model)
-   - HF_TOKEN:- Provide HuggingFace Access Token for accessing Gated models like Falcon180B and Llama-2
+   - **VectorDB_IP:-** (Specify the Public IP address of host where ChromaDB is running)
+   - **HF_MODEL:-** HuggingFace Model Name (Defaults to mistralai/Mistral-7B-v0.1, please include the complete name of the model)
+   - **HF_TOKEN:-** Provide HuggingFace Access Token for accessing Gated models like Falcon180B and Llama-2
 
 6. Click on the AMP and "Configure Project", disable Spark as it is not required.
 
