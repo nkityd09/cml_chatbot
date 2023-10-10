@@ -32,6 +32,8 @@ import chromadb
 from chromadb.config import Settings
 from langchain.prompts import PromptTemplate
 langchain.verbose = True
+import time
+
 
 
 IP_ADDR=os.environ["VectorDB_IP"]
@@ -287,7 +289,12 @@ def llm_ans(query, collection):
     Returns:
     - str: The answer along with relevant source files.
     """
+    start = time.time()
     llm_response = chain(query, collection)
+    end = time.time()
+    elapsed_time = end - start
+
+    
     # print(llm_response['result'])
     sources = []
     for source in llm_response["source_documents"]:
@@ -295,7 +302,7 @@ def llm_ans(query, collection):
         source_file = source_file.replace("/home/cdsw/data/", "")
         sources.append(source_file)
     source_files = "\n".join(sources) 
-    ans = llm_response['result'] + "\n \n Relevant Sources: \n" + source_files
+    ans = llm_response['result'] + "\n \n Relevant Sources: \n" + source_files + "\n \n Elapsed Time: " + str(round(elapsed_time,2)) + " seconds"
     return ans
 
 def reset_state():
