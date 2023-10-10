@@ -1,6 +1,6 @@
 name: CML Document Chatbot
 description: |
-  Complete this
+  A demonstration of how CML can host LLM models using HuggingFace and Gradio
 
 author: Cloudera Inc.
 specification_version: 1.0
