@@ -18,7 +18,7 @@ Git Repo for CML Document Chatbot
 ## Features Under Development
 
 1. Conversational Memory (**In Progress**)
-2. Support for other VectorDBs (Milvus)
+2. [Support for other VectorDBs (Milvus)](https://github.com/nkityd09/cml_chatbot/issues/1)
 
 ## Resource Requirements
 
