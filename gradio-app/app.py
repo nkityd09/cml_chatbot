@@ -1,7 +1,6 @@
 import os
 import gradio as gr
 import shutil
-import random
 import time
 import warnings
 
@@ -12,15 +11,15 @@ from langchain.llms import HuggingFacePipeline
 import torch
 import transformers
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from transformers import LlamaTokenizer, LlamaForCausalLM, pipeline
+from transformers import pipeline
 ### Multi-document retriever
 from langchain.vectorstores import Chroma, FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import RetrievalQA, VectorDBQA
+from langchain.chains import RetrievalQA
 from langchain.document_loaders import PyPDFLoader
 from langchain.document_loaders import DirectoryLoader
 from InstructorEmbedding import INSTRUCTOR
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+
 import glob
 from InstructorEmbedding import INSTRUCTOR
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
@@ -32,7 +31,6 @@ import chromadb
 from chromadb.config import Settings
 from langchain.prompts import PromptTemplate
 langchain.verbose = True
-import time
 
 
 
