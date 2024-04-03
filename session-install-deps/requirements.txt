@@ -1,5 +1,5 @@
 torch==2.0.1
-chromadb==0.4.15
+chromadb
 gradio
 langchain
 typing-inspect==0.8.0
