@@ -130,9 +130,26 @@ def embed_documents(collection):
                          use_multithreading=True)
 
     documents = loader.load()
-
-    for i in range(len(documents)):
-        documents[i].page_content = documents[i].page_content.replace('\t', ' ')\
+    print(documents)
+    
+    for document in documents:
+      if isinstance(document, list):
+        # Handle the case where the document is a list
+          for page in document:
+            # Assuming each page in the list has a 'page_content' attribute
+              if hasattr(page, 'page_content'):
+                  page.page_content = page.page_content.replace('\t', ' ')\
+                                                     .replace('\n', ' ')\
+                                                     .replace('       ', ' ')\
+                                                     .replace('      ', ' ')\
+                                                     .replace('     ', ' ')\
+                                                     .replace('    ', ' ')\
+                                                     .replace('   ', ' ')\
+                                                     .replace('  ', ' ')
+      else:
+        # Handle the case where the document is not a list (directly has page_content)
+          if hasattr(document, 'page_content'):
+              document.page_content = document.page_content.replace('\t', ' ')\
                                                          .replace('\n', ' ')\
                                                          .replace('       ', ' ')\
                                                          .replace('      ', ' ')\
@@ -140,6 +157,7 @@ def embed_documents(collection):
                                                          .replace('    ', ' ')\
                                                          .replace('   ', ' ')\
                                                          .replace('  ', ' ')
+
 
 
     langchain_chroma = Chroma(
@@ -150,10 +168,24 @@ def embed_documents(collection):
     collection = chroma.get_collection(collection) # Needs to be initialized as LangChain cannot add texts
 
     # Document is chunked per page. Each page will be an entry in the Vector DB
-    for doc in documents: 
-        collection.add(
-            ids=[str(uuid.uuid1())], metadatas=doc.metadata, documents=doc.page_content
-        )
+    for doc in documents:
+      if isinstance(doc, list):
+        # If 'doc' is a list, iterate through its elements
+          for page in doc:
+            # Assuming each page has 'metadata' and 'page_content' attributes
+              collection.add(
+                ids=[str(uuid.uuid1())],
+                metadatas=page.metadata,
+                documents=page.page_content
+              )
+      else:
+        # If 'doc' is not a list, it's a single page
+          collection.add(
+            ids=[str(uuid.uuid1())],
+            metadatas=doc.metadata,
+            documents=doc.page_content
+          )
+
 
     pattern = "/home/cdsw/data/*.pdf"
     files = glob.glob(pattern)
@@ -167,14 +199,15 @@ def embed_documents(collection):
     return output
 
 
-##### Experimentatal Code ##### 
+
 def set_retriver(collection_name):
     langchain_chroma = Chroma(
     client=chroma,
     collection_name= collection_name,
     embedding_function=embedding_function)
     
-    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 2, "search_type" : "similarity"})
+    #retriever = langchain_chroma.as_retriever(search_kwargs={"k": 2, "search_type" : "similarity"})
+    retriever = langchain_chroma.as_retriever(search_kwargs={"k": 2})
     return retriever
 
 
@@ -293,14 +326,29 @@ def llm_ans(query, collection):
     elapsed_time = end - start
 
     
-    # print(llm_response['result'])
+    result_text = llm_response['result']
+    answer_tag = "ANSWER<<"
+
+    # Find the index of the 'ANSWER<<' tag
+    answer_index = result_text.find(answer_tag)
+
+    if answer_index != -1:
+      # Extract everything after 'ANSWER<<'
+      extracted_answer = result_text[answer_index + len(answer_tag):].strip()
+    else:
+      # Handle the case where 'ANSWER<<' is not found in the text
+      extracted_answer = "Answer tag not found in the response."
+
+      print(extracted_answer)
+
     sources = []
     for source in llm_response["source_documents"]:
         source_file = source.metadata['source']
         source_file = source_file.replace("/home/cdsw/data/", "")
         sources.append(source_file)
     source_files = "\n".join(sources) 
-    ans = llm_response['result'] + "\n \n Relevant Sources: \n" + source_files + "\n \n Elapsed Time: " + str(round(elapsed_time,2)) + " seconds"
+    ans = extracted_answer + "\n \n Relevant Sources: \n" + source_files + "\n \n Elapsed Time: " + str(round(elapsed_time,2)) + " seconds"
+#    ans = llm_response['result'] + "\n \n Relevant Sources: \n" + source_files + "\n \n Elapsed Time: " + str(round(elapsed_time,2)) + " seconds"
     return ans
 
 def reset_state():
